@@ -1,56 +1,71 @@
 from pykrx import stock
 import mysql.connector
+import requests
+import time
 
-jusicDate = "20240919"
 # MySQL 연결 설정
 connection = mysql.connector.connect(
-    host="127.0.0.1",  # Docker 컨테이너가 로컬에서 실행 중이므로 localhost 사용
-    user="root",
-    password="1234",
-    database="stockey",
-    charset="utf8mb4"
+    host="localhost",  # MySQL 호스트
+    user="root",       # MySQL 사용자명
+    password="1234",   # MySQL 비밀번호
+    database="stockey",  # 데이터베이스 이름
+    charset="utf8mb4"   # utf8mb4 인코딩 설정
 )
 
 cursor = connection.cursor()
-cursor.execute("SET NAMES utf8mb4;")  # 세션 인코딩 설정
 
-# 테이블이 없으면 생성하는 코드
-create_table_query = """
+# 테이블 생성 (테이블이 없는 경우 실행)
+cursor.execute("""
 CREATE TABLE IF NOT EXISTS stock_data (
-    ticker VARCHAR(10) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    market VARCHAR(10) NOT NULL
-) CHARACTER SET utf8mb4;
-"""
-cursor.execute(create_table_query)
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticker VARCHAR(10),
+    name VARCHAR(255),
+    market VARCHAR(10)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+""")
 
-# 기존 데이터를 전부 삭제하는 코드
+# 기존 데이터 삭제
+cursor.execute("SET SQL_SAFE_UPDATES = 0")
+
+# 기존 데이터 삭제
 cursor.execute("DELETE FROM stock_data")
-print("기존 데이터를 모두 삭제했습니다.")
 
-# 데이터를 삽입할 함수 정의
-def insert_stock_data(ticker, name, market):
-    try:
-        sql = "INSERT INTO stock_data (ticker, name, market) VALUES (%s, %s, %s)"
-        cursor.execute(sql, (ticker, name, market))
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
+# Safe Update Mode 다시 활성화 (선택 사항)
+cursor.execute("SET SQL_SAFE_UPDATES = 1")
 
-# KRX에서 데이터 가져와 MySQL에 삽입
-for ticker in stock.get_market_ticker_list(jusicDate, market="KOSPI"):
-    name = stock.get_market_ticker_name(ticker)
-    insert_stock_data(ticker, name, "KOSPI")
-
-for ticker in stock.get_market_ticker_list(jusicDate, market="KOSDAQ"):
-    name = stock.get_market_ticker_name(ticker)
-    insert_stock_data(ticker, name, "KOSDAQ")
-
-for ticker in stock.get_market_ticker_list(jusicDate, market="KONEX"):
-    name = stock.get_market_ticker_name(ticker)
-    insert_stock_data(ticker, name, "KONEX")
-
-# 데이터베이스 변경 사항 커밋 및 연결 종료
+# 변경사항 저장 (기존 데이터 삭제 후)
 connection.commit()
+
+# API 요청 및 데이터 저장
+for page in range(1, 11):
+    url = f"https://finance.daum.net/api/trend/market_capitalization?page={page}&perPage=30&fieldName=marketCap&order=desc&market=KOSPI&pagination=true"
+    headers = {
+        'User-Agent': 'Mozilla/5.0',
+        'Referer': 'https://finance.daum.net/'
+    }
+
+    # API 요청 보내기
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json().get('data', [])
+        for item in data:
+            ticker = item['symbolCode'][1:]  # 'A' 제거
+            name = item['name']
+            market = "KOSPI"  # 시장 이름 고정
+
+            # MySQL에 데이터 삽입
+            cursor.execute("INSERT INTO stock_data (ticker, name, market) VALUES (%s, %s, %s)",
+                           (ticker, name, market))
+
+        # 변경사항 저장
+        connection.commit()
+    else:
+        print(f"Error fetching page {page}, Status Code: {response.status_code}")
+
+    # 1초간 대기
+    time.sleep(1)
+
+# 연결 닫기
 cursor.close()
 connection.close()
-print("새로운 데이터를 모두 삽입했습니다.")
