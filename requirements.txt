@@ -1,0 +1,6 @@
+pykrx
+mysql-connector-python
+requests
+python-dotenv
+kiwipiepy
+scikit-learn
