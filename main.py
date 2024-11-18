@@ -2,13 +2,18 @@ from pykrx import stock
 import mysql.connector
 import requests
 import time
+from dotenv import load_dotenv
+import os
+
+# load .env
+load_dotenv()
 
 # MySQL 연결 설정
 connection = mysql.connector.connect(
-    host="localhost",  # MySQL 호스트
-    user="root",       # MySQL 사용자명
-    password="1234",   # MySQL 비밀번호
-    database="stockey",  # 데이터베이스 이름
+    host=os.environ.get('DB_HOST'),  # MySQL 호스트
+    user=os.environ.get('DB_USER'),       # MySQL 사용자명
+    password=os.environ.get('DB_PASSWORD'),   # MySQL 비밀번호
+    database=os.environ.get('DB_DATABASE'),  # 데이터베이스 이름
     charset="utf8mb4"   # utf8mb4 인코딩 설정
 )
 
