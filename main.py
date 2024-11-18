@@ -20,7 +20,7 @@ cursor = connection.cursor()
 
 # 테이블 생성 (테이블이 없는 경우 실행)
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS stock (
+CREATE TABLE IF NOT EXISTS Stock (
     id INT AUTO_INCREMENT PRIMARY KEY,
     code INT,
     stock_name VARCHAR(255),
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS stock (
 
 # 기존 데이터 삭제
 cursor.execute("SET SQL_SAFE_UPDATES = 0")
-cursor.execute("DELETE FROM stock")  # stock 테이블에서 삭제
+cursor.execute("DELETE FROM Stock")  # stock 테이블에서 삭제
 cursor.execute("SET SQL_SAFE_UPDATES = 1")
 
 # 변경사항 저장
@@ -55,11 +55,12 @@ for page in range(1, 11):
             market = "KOSPI"  # 시장 이름 고정
 
             # MySQL에 데이터 삽입
-            cursor.execute("INSERT INTO stock (code, stock_name, market) VALUES (%s, %s, %s)",
+            cursor.execute("INSERT INTO Stock (code, stock_name, market) VALUES (%s, %s, %s)",
                            (code, stock_name, market))
 
         # 변경사항 저장
         connection.commit()
+        print("DB 삽입 성공")
     else:
         print(f"Error fetching page {page}, Status Code: {response.status_code}")
 
