@@ -16,7 +16,7 @@ cursor = connection.cursor()
 
 # 키워드 테이블 생성 (테이블이 없는 경우 실행)
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS keyword (
+CREATE TABLE IF NOT EXISTS Keyword (
     id INT AUTO_INCREMENT PRIMARY KEY,
     stock_id INT,
     keyword VARCHAR(255),
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS keyword (
 """)
 
 # Stock 테이블에서 데이터를 가져와 키워드 추출 및 저장
-cursor.execute("SELECT id, stock_name FROM stock")
+cursor.execute("SELECT id, stock_name FROM Stock")
 stocks = cursor.fetchall()
 stopwords_filepath = 'stopwords-ko.txt'  # 불용어 파일 경로
 
@@ -34,7 +34,7 @@ for stock_id, stock_name in stocks:
     keywords = fetch_and_extract_keywords(stock_name, stopwords_filepath)
     for keyword, weight in keywords:
         cursor.execute(
-            "INSERT INTO keyword (stock_id, keyword, weight) VALUES (%s, %s, %s)",
+            "INSERT INTO Keyword (stock_id, keyword, weight) VALUES (%s, %s, %s)",
             (stock_id, keyword, float(weight))  # weight 값을 float으로 변환
         )
     connection.commit()
