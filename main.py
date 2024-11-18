@@ -22,7 +22,7 @@ cursor = connection.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Stock (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    code INT,
+    code VARCHAR(30),
     stock_name VARCHAR(255),
     market VARCHAR(10)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
@@ -50,7 +50,7 @@ for page in range(1, 11):
     if response.status_code == 200:
         data = response.json().get('data', [])
         for item in data:
-            code = int(item['symbolCode'][1:])  # 'A' 제거
+            code = item['symbolCode'][1:]  # 'A' 제거
             stock_name = item['name']
             market = "KOSPI"  # 시장 이름 고정
 
