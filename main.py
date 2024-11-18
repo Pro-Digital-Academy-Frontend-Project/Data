@@ -21,10 +21,10 @@ cursor = connection.cursor()
 
 # 테이블 생성 (테이블이 없는 경우 실행)
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS stock_data (
+CREATE TABLE IF NOT EXISTS stock (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    ticker VARCHAR(10),
-    name VARCHAR(255),
+    code INT,
+    stock_name VARCHAR(255),
     market VARCHAR(10)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 """)
@@ -55,13 +55,13 @@ for page in range(1, 11):
     if response.status_code == 200:
         data = response.json().get('data', [])
         for item in data:
-            ticker = item['symbolCode'][1:]  # 'A' 제거
-            name = item['name']
+            code = item['symbolCode'][1:]  # 'A' 제거
+            stock_name = item['name']
             market = "KOSPI"  # 시장 이름 고정
 
             # MySQL에 데이터 삽입
-            cursor.execute("INSERT INTO stock_data (ticker, name, market) VALUES (%s, %s, %s)",
-                           (ticker, name, market))
+            cursor.execute("INSERT INTO stock (code, stock_name, market) VALUES (%s, %s, %s)",
+                           (code, stock_name, market))
 
         # 변경사항 저장
         connection.commit()
