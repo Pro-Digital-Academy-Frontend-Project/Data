@@ -31,10 +31,10 @@ try:
 
     if 'access_token' in data:
         access_token = data['access_token']
-        print(f"Access Token: {access_token}")
+        print(access_token)
 
         # 텍스트 파일에 토큰 저장
-        with open('./token.txt', 'w') as file:
+        with open('/home/ubuntu/token.txt', 'w') as file:
             file.write(access_token)
 
     else:

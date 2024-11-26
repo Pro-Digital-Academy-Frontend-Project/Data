@@ -5,6 +5,9 @@ import time
 from dotenv import load_dotenv
 import os
 
+print("Starting Main.py process...", flush=True)
+time.sleep(2)
+
 # load .env
 load_dotenv()
 
@@ -17,6 +20,8 @@ connection = mysql.connector.connect(
 )
 
 cursor = connection.cursor()
+
+print("DB Connected...", flush=True)
 
 # 테이블 생성 (테이블이 없는 경우 실행)
 cursor.execute("""
@@ -32,6 +37,8 @@ CREATE TABLE IF NOT EXISTS Stock (
 cursor.execute("SET SQL_SAFE_UPDATES = 0")
 cursor.execute("DELETE FROM Stock")  # stock 테이블에서 삭제
 cursor.execute("SET SQL_SAFE_UPDATES = 1")
+
+print("DB Clear...", flush=True)
 
 # 변경사항 저장
 connection.commit()
@@ -70,3 +77,6 @@ for page in range(1, 11):
 # 연결 닫기
 cursor.close()
 connection.close()
+
+time.sleep(2)
+print("Starting Main.py complte...", flush=True)
