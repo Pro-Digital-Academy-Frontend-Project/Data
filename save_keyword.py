@@ -60,4 +60,4 @@ for stock_id, stock_name in stocks:
 cursor.close()
 connection.close()
 
-print("Starting save_keyword.py complted...", flush=True)
+print("save_keyword.py complted...", flush=True)
