@@ -2,7 +2,9 @@ import mysql.connector
 from dotenv import load_dotenv
 import os
 from keyword_extractor import fetch_and_extract_keywords
+from datetime import datetime
 
+print(f'Today -> {datetime.now()}', flush=True)
 print("Starting save_keyword.py process...", flush=True)
 
 # MySQL 연결 설정
@@ -60,4 +62,4 @@ for stock_id, stock_name in stocks:
 cursor.close()
 connection.close()
 
-print("Starting save_keyword.py complted...", flush=True)
+print("save_keyword.py complted...", flush=True)
