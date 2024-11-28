@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import os
 from keyword_extractor import fetch_and_extract_keywords
 from datetime import datetime
+# from keyword_extractor import fetch_and_extract_keywords
+from extract_keyword_kr_wordrank import fetch_and_process_news_with_keywords
 
 print(f'Today -> {datetime.now()}', flush=True)
 print("Starting save_keyword.py process...", flush=True)
@@ -49,7 +51,10 @@ stocks = cursor.fetchall()
 stopwords_filepath = '/home/ubuntu/Data/stopwords-ko.txt'  # 불용어 파일 경로
 
 for stock_id, stock_name in stocks:
-    keywords = fetch_and_extract_keywords(stock_name, stopwords_filepath)
+    keywords = fetch_and_process_news_with_keywords(stock_name, stopwords_filepath)
+    if not keywords:  # 키워드가 없는 경우
+        print(f"No keywords found for {stock_name}. Skipping...")
+        continue
     for keyword, weight in keywords:
         cursor.execute(
             "INSERT INTO Keyword (stock_id, keyword, weight) VALUES (%s, %s, %s)",
