@@ -62,7 +62,9 @@ finally:
     # 연결 종료
     if cursor:
         cursor.close()
+        print("Cursor Close", flush=True)
     if connection:
         connection.close()
+        print("Connetcion Close", flush=True)
 
 print("update_chat_room.py complted...", flush=True)
