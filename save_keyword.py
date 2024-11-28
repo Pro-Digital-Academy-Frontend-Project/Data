@@ -1,7 +1,9 @@
 import mysql.connector
 from dotenv import load_dotenv
 import os
-from keyword_extractor import fetch_and_extract_keywords
+# from keyword_extractor import fetch_and_extract_keywords
+from extract_keyword_kr_wordrank import fetch_and_process_news_with_keywords
+
 
 # MySQL 연결 설정
 load_dotenv()
@@ -28,10 +30,13 @@ CREATE TABLE IF NOT EXISTS Keyword (
 # Stock 테이블에서 데이터를 가져와 키워드 추출 및 저장
 cursor.execute("SELECT id, stock_name FROM Stock")
 stocks = cursor.fetchall()
-stopwords_filepath = 'stopwords-ko.txt'  # 불용어 파일 경로
+stopwords_filepath = 'Data/stopwords-ko.txt'  # 불용어 파일 경로
 
 for stock_id, stock_name in stocks:
-    keywords = fetch_and_extract_keywords(stock_name, stopwords_filepath)
+    keywords = fetch_and_process_news_with_keywords(stock_name, stopwords_filepath)
+    if not keywords:  # 키워드가 없는 경우
+        print(f"No keywords found for {stock_name}. Skipping...")
+        continue
     for keyword, weight in keywords:
         cursor.execute(
             "INSERT INTO Keyword (stock_id, keyword, weight) VALUES (%s, %s, %s)",
