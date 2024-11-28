@@ -16,7 +16,6 @@ try:
     # print(response.json())
     top5 = response.json()['results']
     
-    print(top5)
     # MySQL 연결 설정
     connection = mysql.connector.connect(
         host=os.environ.get('DB_HOST'),  # MySQL 호스트
@@ -44,7 +43,6 @@ try:
     # 각 keyword에 대해, Chat_Room에 존재하는지 확인하고, 존재하지 않으면 삽입
     for row in top5:
         keyword = row['keyword']
-        print(keyword)
         
         # Chat_Room에 keyword가 존재하는지 확인하는 쿼리
         check_query = "SELECT 1 FROM Chat_Room WHERE name = %s"
